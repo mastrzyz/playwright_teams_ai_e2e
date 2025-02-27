@@ -30,6 +30,7 @@
     "playwright": "1.51.0-next"
   },
   "devDependencies": {
+    "@azure/identity": "^4.6.0",
     "@anthropic-ai/sdk": "^0.33.1",
     "openai": "^4.79.1"
   }

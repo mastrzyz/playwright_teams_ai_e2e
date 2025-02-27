@@ -16,16 +16,26 @@
 
 /* eslint-disable no-console */
 
+import {
+  DefaultAzureCredential,
+  getBearerTokenProvider,
+} from "@azure/identity";
+
+
 import browser from '@playwright/experimental-tools/browser';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
+import { AzureOpenAI } from 'openai';
 import playwright from 'playwright';
 
 import type { ChatCompletionMessageParam, ChatCompletionTool } from 'openai/resources';
 
 dotenv.config();
 
-const openai = new OpenAI();
+const credential = new DefaultAzureCredential();
+const scope = 'https://cognitiveservices.azure.com/.default';
+const azureADTokenProvider = getBearerTokenProvider(credential, scope);
+
+const openai = new AzureOpenAI({ azureADTokenProvider });
 
 export const system = `
 You are a web tester.
@@ -89,7 +99,7 @@ async function openAIAgentLoop(page: playwright.Page, task: string) {
   // Run agentic loop, cap steps.
   for (let i = 0; i < 50; i++) {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: toOpenAIMessages(history),
       tools,
       tool_choice: 'required',
@@ -145,11 +155,11 @@ async function main() {
   const browser = await playwright.chromium.launch({ headless: false });
   const page = await browser.newPage();
   await openAIAgentLoop(page, `
-    - Go to http://github.com/microsoft
-    - Search for "playwright" repository
-    - Navigate to it
-    - Switch into the Issues tab
-    - Report 3 first issues
+    - Go to http://teams.microsoft.com
+    - Input the username '${process.env.USERNAME_ACCOUNT}'
+    - Input the password '${process.env.PASSWORD_ACCOUNT}'
+    - Click the 'Sign in' button
+    - Create a Chat | Attach a file
   `);
   await browser.close();
 }
