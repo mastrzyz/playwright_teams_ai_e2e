@@ -102,8 +102,8 @@ async function openAIAgentLoop(page: playwright.Page, task: string) {
       model: 'gpt-4o-mini',
       messages: toOpenAIMessages(history),
       tools,
-      tool_choice: 'required',
-      store: true,
+      // tool_choice: 'required', TODO Marcin , figure out why this doesn't work
+      store: true
     });
 
     const toolCalls = completion.choices[0]?.message?.tool_calls;
